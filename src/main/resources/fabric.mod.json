@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "sapscreens",
+  "version": "${version}",
+  "name": "SapScreens",
+  "description": "A screen library for my Minecraft Mods.",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/sapscreens/hires-icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.sapfii.sapscreens.SapScreens"
+    ]
+  },
+  "mixins": [
+    "sapscreens.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
