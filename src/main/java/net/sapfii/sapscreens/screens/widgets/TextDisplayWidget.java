@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TextDisplayWidget extends Widget<TextDisplayWidget>{
-    public enum Alignment {
-        LEFT, CENTER, RIGHT
-    }
 
 
     private Text text;
@@ -33,12 +30,22 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget>{
         this.text = text;
         this.linePadding = linePadding;
         this.alignment = alignment;
+        if (alignment == Alignment.TOPLEFT || alignment == Alignment.BOTTOMLEFT) {
+            this.alignment = Alignment.LEFT;
+        } else if (alignment == Alignment.TOP || alignment == Alignment.BOTTOM) {
+            this.alignment = Alignment.CENTER;
+        } else if (alignment == Alignment.TOPRIGHT || alignment == Alignment.BOTTOMRIGHT) {
+            this.alignment = Alignment.RIGHT;
+        }
+    }
+
+    public TextDisplayWidget withText(Text text) {
+        this.text = text;
+        return getThis();
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (centerWidth) this.withPosition(parent.getWidth() / 2 - width / 2, 0);
-        if (centerHeight) this.withPosition(this.x, parent.getHeight() / 2 - height / 2);
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         sectionedTexts = new ArrayList<>();
         List<Text> texts = SapScreens.splitTextNewline(text);

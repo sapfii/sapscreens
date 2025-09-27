@@ -2,6 +2,7 @@ package net.sapfii.sapscreens.screens.widgets;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.sapfii.sapscreens.SapScreens;
 import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
 import net.sapfii.sapscreens.screens.widgets.interfaces.ScrollableWidget;
 import net.sapfii.sapscreens.screens.widgets.interfaces.WidgetContainer;
@@ -12,19 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WidgetListBox extends Widget<WidgetListBox> implements ScrollableWidget, ClickableWidget, WidgetContainer {
-    private final List<Widget<?>> elements = new ArrayList<>();
-    private int verticalPadding = 5;
-    private int horizontalPadding = 5;
-    private int itemPadding = 5;
-    private int scrollAmount = 0;
-    private int maxScrollAmount = 0;
-    private float scrollScaleFactor = 0f;
-    private boolean hovered = false;
-    private boolean scrollHovered = false;
-    private boolean useScrollBinds = false;
-    private float mouseAnchor = 0f;
-    private int scrollAnchor = 0;
-    private boolean holdingScrollBar = false;
+    protected final List<Widget<?>> elements = new ArrayList<>();
+    protected int verticalPadding = 5;
+    protected int horizontalPadding = 5;
+    protected int itemPadding = 5;
+    protected int scrollAmount = 0;
+    protected float subpixelScrollAmount = 0;
+    protected int targetScrollAmount = 0;
+    protected int maxScrollAmount = 0;
+    protected float scrollScaleFactor = 0f;
+    protected boolean hovered = false;
+    protected boolean scrollHovered = false;
+    protected boolean useScrollBinds = false;
+    protected float mouseAnchor = 0f;
+    protected int scrollAnchor = 0;
+    protected boolean holdingScrollBar = false;
 
     public WidgetListBox(Widget<?>... widgets) {
         super();
@@ -102,19 +105,18 @@ public class WidgetListBox extends Widget<WidgetListBox> implements ScrollableWi
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (centerWidth) this.width = parent.getWidth() - x * 2;
-        if (centerHeight) this.height = parent.getHeight() - y * 2;
         checkHovered(context, mouseX, mouseY);
         context.enableScissor(0, 0, width, height);
         context.fill(0, 0, width, height, 0x55000000);
         int yOffset = 0;
         int lowestPoint = 0;
         for (Widget<?> child : this.getChildren()) {
+            child.updateOrigin();
             child.x = horizontalPadding;
             child.y = verticalPadding + yOffset - scrollAmount;
             child.width = width - horizontalPadding * 2;
             context.getMatrices().pushMatrix();
-            context.getMatrices().translate(child.x, child.y);
+            context.getMatrices().translate(child.x + child.originX, child.y + child.originY);
             child.render(context, mouseX, mouseY, delta);
             if (child instanceof WidgetContainer w && w instanceof ClickableWidget cw && cw instanceof ScrollableWidget sw) {
                 if (cw.hovered() && sw.getMaxScrollAmount() > 0) {
@@ -134,6 +136,11 @@ public class WidgetListBox extends Widget<WidgetListBox> implements ScrollableWi
                 setScrollAmount((int) (scrollAnchor + (mouseY - mouseAnchor) / scrollScaleFactor));
             }
         }
+        if (maxScrollAmount < 0) maxScrollAmount = 0;
+        targetScrollAmount = Math.clamp(targetScrollAmount, 0, maxScrollAmount);
+        subpixelScrollAmount = Math.clamp(subpixelScrollAmount, 0, maxScrollAmount);
+        subpixelScrollAmount = SapScreens.lerp(subpixelScrollAmount, targetScrollAmount, 0.05f);
+        scrollAmount = Math.round(subpixelScrollAmount);
         context.disableScissor();
     }
 
@@ -150,7 +157,7 @@ public class WidgetListBox extends Widget<WidgetListBox> implements ScrollableWi
             }
         }
         if (!useScrollBinds) return;
-        setScrollAmount((int) (scrollAmount - amount * 15));
+        setScrollAmount((int) (scrollAmount - amount * 25));
     }
 
     @Override
@@ -165,9 +172,9 @@ public class WidgetListBox extends Widget<WidgetListBox> implements ScrollableWi
 
     @Override
     public void setScrollAmount(int y) {
-        scrollAmount = y;
+        targetScrollAmount = y;
         if (maxScrollAmount < 0) maxScrollAmount = 0;
-        scrollAmount = Math.clamp(scrollAmount, 0, maxScrollAmount);
+        targetScrollAmount = Math.clamp(targetScrollAmount, 0, maxScrollAmount);
     }
 
     @Override

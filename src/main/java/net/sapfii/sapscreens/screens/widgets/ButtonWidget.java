@@ -10,11 +10,11 @@ import org.joml.Vector2f;
 
 public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidget {
     private boolean hasText;
-    private boolean hovered = false;
     private Text text;
     private int color = 0x88000000;
     private int hoverColor = 0x88222222;
     private ClickProcessor processor = (button) -> {};
+    protected boolean hovered = false;
 
     public ButtonWidget(Text text) {
         super();
@@ -45,8 +45,6 @@ public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidge
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (centerWidth) this.width = parent.getWidth() - x * 2;
-        if (centerHeight) this.height = parent.getHeight() - y * 2;
         checkHovered(context, mouseX, mouseY);
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         context.enableScissor(0, 0, width, height);

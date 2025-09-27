@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
+import net.sapfii.sapscreens.SapScreens;
 import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
 import net.sapfii.sapscreens.screens.widgets.interfaces.ScrollableWidget;
 import net.sapfii.sapscreens.screens.widgets.interfaces.WidgetContainer;
@@ -17,10 +18,14 @@ import java.util.List;
 public class WidgetContainerScreen extends Screen implements WidgetContainer {
     protected List<Widget<?>> elements = new ArrayList<>();
     protected final Screen previousScreen;
+    protected float openAnimation = -15;
+    protected float animationProgress = 0.0f;
+    private double lastRender = System.currentTimeMillis();
 
     public WidgetContainerScreen(Screen previousScreen) {
         super(Text.literal(""));
         this.previousScreen = previousScreen;
+        lastRender = System.currentTimeMillis();
     }
 
     @Override
@@ -83,13 +88,26 @@ public class WidgetContainerScreen extends Screen implements WidgetContainer {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
+        float delta = (float) (System.currentTimeMillis() - lastRender);
+        if (animationProgress < 1) {
+            context.getMatrices().pushMatrix();
+            context.getMatrices().translate(0, Math.round(openAnimation));
+
+            openAnimation = SapScreens.lerp(openAnimation, 0, animationProgress);
+            animationProgress += 0.0001 * delta;
+        }
         for (Widget<?> child : this.getChildren()) {
             child.parent = this;
+            child.updateOrigin();
             context.getMatrices().pushMatrix();
-            context.getMatrices().translate(child.x, child.y);
+            context.getMatrices().translate(child.x + child.originX, child.y + child.originY);
             child.render(context, mouseX, mouseY, deltaTicks);
             context.getMatrices().popMatrix();
         }
+        if (animationProgress < 1) {
+            context.getMatrices().popMatrix();
+        }
+        lastRender = System.currentTimeMillis();
     }
 
     @Override

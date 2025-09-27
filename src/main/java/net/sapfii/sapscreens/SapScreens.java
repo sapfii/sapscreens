@@ -47,4 +47,9 @@ public class SapScreens implements ClientModInitializer {
         return result;
     }
 
+    public static float lerp(float a, float b, float t) {
+        t = Math.clamp(t, 0, 1);
+        return a + t * (b - a);
+    }
+
 }
