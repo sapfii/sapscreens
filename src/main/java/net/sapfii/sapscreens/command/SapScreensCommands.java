@@ -5,14 +5,13 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ChatScreen;
 import net.sapfii.sapscreens.ScreenHandler;
-import net.sapfii.sapscreens.TestScreen;
+import net.sapfii.sapscreens.screens.widgets.ButtonWidget;
 
 public class SapScreensCommands {
     public static void init() {
         registerSimpleCommand("debugscreen", context -> {
-            ScreenHandler.openScreen(new TestScreen(MinecraftClient.getInstance().currentScreen));
+            //ScreenHandler.openScreen(new TestScreen(MinecraftClient.getInstance().currentScreen));
             return 1;
         });
     }
