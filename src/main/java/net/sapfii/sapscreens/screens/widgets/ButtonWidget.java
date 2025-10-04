@@ -5,7 +5,6 @@ import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
 
 public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidget {
     protected ClickProcessor processor = () -> {};
-    protected boolean hovered = false;
 
     public ButtonWidget() {
         this.x = 0;
@@ -15,24 +14,24 @@ public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidge
     }
 
     @Override
-    public void render(DrawContext context, float mouseX, float mouseY, float delta) {
+    public void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer) {
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(x, y);
         context.enableScissor(0, 0, (int) width, (int) height);
-        updateHovered(mouseX, mouseY);
-        if (hovered) context.fill(0, 0, Math.round(width), Math.round(height), 0x88222222);
-        else context.fill(0, 0, Math.round(width), Math.round(height), 0x88000000);
-        if (hovered) context.drawBorder(0, 0, Math.round(width), Math.round(height), 0xFFFFFFFF);
+        if (isHovered(mouseX, mouseY, renderer)) {
+            context.fill(0, 0, Math.round(width), Math.round(height), 0x88222222);
+            context.drawBorder(0, 0, Math.round(width), Math.round(height), 0xBBFFFFFF);
+        } else context.fill(0, 0, Math.round(width), Math.round(height), 0x88000000);
         context.disableScissor();
         context.getMatrices().popMatrix();
     }
 
-    private void updateHovered(float mouseX, float mouseY) {
-        hovered = (mouseX - x >= 0 && mouseX - x < width) && (mouseY - y >= 0 && mouseY - y < height);
-    }
-
-    public boolean hovered() {
-        return hovered;
+    private boolean isHovered(float mouseX, float mouseY, WidgetContainer renderer) {
+        boolean inBoundsX = mouseX >= x && mouseX < x + width;
+        boolean inBoundsY = mouseY >= y && mouseY < y + height;
+        boolean inRenderBoundsX = mouseX >= 0 && mouseX < renderer.width;
+        boolean inRenderBoundsY = mouseY >= 0 && mouseY < renderer.height;
+        return inBoundsX && inBoundsY && inRenderBoundsX && inRenderBoundsY;
     }
 
     @Override
@@ -46,6 +45,12 @@ public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidge
     public ButtonWidget withDimensions(int width, int height) {
         this.width = width;
         this.height = height;
+        return this;
+    }
+
+    @Override
+    public ButtonWidget withAlignment(Alignment alignment) {
+        this.alignment = alignment;
         return this;
     }
 

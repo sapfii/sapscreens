@@ -20,7 +20,7 @@ public class WidgetList extends WidgetContainer {
     }
 
     @Override
-    public void render(DrawContext context, float mouseX, float mouseY, float delta) {
+    public void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer) {
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(x, y);
         context.enableScissor(0, 0, (int) width, (int) height);
@@ -31,13 +31,12 @@ public class WidgetList extends WidgetContainer {
             widget.width = width - horizontalPadding * 2;
             widget.y = currentOffset;
             currentOffset += (int) (widget.height + itemPadding);
-            widget.render(context, mouseX - x, mouseY - y, delta);
+            widget.render(context, mouseX - x, mouseY - y, delta, this);
         }
         context.disableScissor();
         if (currentOffset - itemPadding > height) {
             maxScrollAmount = currentOffset - itemPadding - height;
             context.fill((int) width, 0, (int) width + 3, (int) height, 0x88000000);
-
         }
         context.getMatrices().popMatrix();
     }

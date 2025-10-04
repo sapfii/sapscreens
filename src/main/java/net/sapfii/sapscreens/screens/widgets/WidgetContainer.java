@@ -17,8 +17,8 @@ public class WidgetContainer extends Widget<WidgetContainer> {
     }
 
     @Override
-    public void render(DrawContext context, float mouseX, float mouseY, float delta) {
-        widgets.forEach(widget -> widget.render(context, mouseX - x, mouseY - y, delta));
+    public void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer) {
+        widgets.forEach(widget -> widget.render(context, mouseX - x, mouseY - y, delta, this));
     }
 
     @Override
@@ -32,6 +32,12 @@ public class WidgetContainer extends Widget<WidgetContainer> {
     public WidgetContainer withDimensions(int width, int height) {
         this.width = width;
         this.height = height;
+        return this;
+    }
+
+    @Override
+    public WidgetContainer withAlignment(Alignment alignment) {
+        this.alignment = alignment;
         return this;
     }
 
