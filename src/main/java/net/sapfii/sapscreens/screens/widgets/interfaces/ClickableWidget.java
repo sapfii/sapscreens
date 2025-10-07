@@ -4,7 +4,7 @@ public interface ClickableWidget {
     void onClick();
     void onRelease();
 
-    public interface ClickProcessor {
+    interface ClickProcessor {
         void onClick();
     }
 }

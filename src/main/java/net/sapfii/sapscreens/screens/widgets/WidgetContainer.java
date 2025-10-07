@@ -1,6 +1,8 @@
 package net.sapfii.sapscreens.screens.widgets;
 
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.sapfii.sapscreens.SapScreens;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,35 +11,27 @@ public class WidgetContainer extends Widget<WidgetContainer> {
     protected List<Widget<?>> widgets = new ArrayList<>();
 
     public WidgetContainer(Widget<?>... widgets) {
-        this.widgets.addAll(List.of(widgets));
-        this.x = 0;
-        this.y = 0;
-        this.width = 0;
-        this.height = 0;
+        this(List.of(widgets));
+    }
+    
+    public WidgetContainer(List<Widget<?>> widgets) {
+        this.widgets.addAll(widgets);
+        position.x = 0;
+        position.y = 0;
+        position.width = 0;
+        position.height = 0;
     }
 
     @Override
     public void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer) {
-        widgets.forEach(widget -> widget.render(context, mouseX - x, mouseY - y, delta, this));
+        position.width = SapScreens.MC.getWindow().getScaledWidth() - x();
+        position.height = SapScreens.MC.getWindow().getScaledHeight() - y();
+        position.updateAnchors(renderer);
+        widgets.forEach(widget -> widget.render(context, mouseX - position.x, mouseY - position.y, delta, this));
     }
 
     @Override
-    public WidgetContainer withPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
-        return this;
-    }
-
-    @Override
-    public WidgetContainer withDimensions(int width, int height) {
-        this.width = width;
-        this.height = height;
-        return this;
-    }
-
-    @Override
-    public WidgetContainer withAlignment(Alignment alignment) {
-        this.alignment = alignment;
+    protected WidgetContainer getThis() {
         return this;
     }
 
@@ -47,26 +41,31 @@ public class WidgetContainer extends Widget<WidgetContainer> {
 
     public WidgetContainer addWidget(Widget<?> widget) {
         widgets.add(widget);
-        return this;
+        return getThis();
     }
 
     public WidgetContainer addWidgets(Widget<?>... widgets) {
         this.widgets.addAll(List.of(widgets));
-        return this;
+        return getThis();
     }
 
     public WidgetContainer addWidgets(List<Widget<?>> widgets) {
         this.widgets.addAll(widgets);
-        return this;
+        return getThis();
     }
 
     public WidgetContainer removeWidget(Widget<?> widget) {
         widgets.remove(widget);
-        return this;
+        return getThis();
     }
 
     public WidgetContainer removeWidget(int index) {
         widgets.remove(index);
-        return this;
+        return getThis();
+    }
+
+    public WidgetContainer clearWidgets() {
+        widgets.clear();
+        return getThis();
     }
 }
