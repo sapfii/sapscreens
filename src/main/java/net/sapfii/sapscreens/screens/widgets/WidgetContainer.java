@@ -1,7 +1,6 @@
 package net.sapfii.sapscreens.screens.widgets;
 
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.sapfii.sapscreens.SapScreens;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class WidgetContainer extends Widget<WidgetContainer> {
     }
 
     @Override
-    public void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer) {
+    public void render(DrawContext context, float mouseX, float mouseY, float delta, Widget<?> renderer) {
         position.width = SapScreens.MC.getWindow().getScaledWidth() - x();
         position.height = SapScreens.MC.getWindow().getScaledHeight() - y();
         position.updateAnchors(renderer);

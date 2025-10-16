@@ -8,25 +8,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UtilSS {
+
+    private static List<Text> newlineResult = new ArrayList<>();
+    private static MutableText newlineCurrentStrand = Text.empty();
+
     public static List<Text> splitTextNewline(Text text) {
-        List<Text> result = new ArrayList<>();
+        if (!text.copyContentOnly().getString().isEmpty()) text = Text.empty().append(text);
+        newlineResult = new ArrayList<>();
         List<Text> siblings = new ArrayList<>(text.getSiblings());
-        siblings.addFirst(text.copyContentOnly().setStyle(text.getStyle()));
-        MutableText currentStrand = Text.empty();
+        newlineCurrentStrand = Text.empty();
         for (Text sibling : siblings) {
-            String[] parts = sibling.getString().split("\n", -1);
-            Style style = sibling.getStyle();
-            List<String> partsList = new ArrayList<>(List.of(parts));
-            for (String part : partsList) {
-                if (partsList.indexOf(part) != 0) {
-                    result.add(currentStrand);
-                    currentStrand = Text.empty();
-                }
-                currentStrand.append(Text.literal(part).setStyle(style));
+            newlineWrapLogic(sibling, sibling.copyContentOnly().getString());
+            for (Text siblingin : sibling.getSiblings()) {
+                newlineWrapLogic(siblingin, siblingin.getString());
             }
         }
-        result.add(currentStrand);
-        return result;
+        newlineResult.add(newlineCurrentStrand);
+        return newlineResult;
+    }
+
+    private static void newlineWrapLogic(Text text, String partsString) {
+        String[] parts = partsString.split("\n", -1);
+        Style style = text.getStyle();
+        List<String> partsList = new ArrayList<>(List.of(parts));
+        for (String part : partsList) {
+            if (partsList.indexOf(part) != 0) {
+                newlineResult.add(newlineCurrentStrand);
+                newlineCurrentStrand = Text.empty();
+            }
+            newlineCurrentStrand.append(Text.literal(part).setStyle(style));
+        }
     }
 
     public static float lerp(float a, float b, float t) {

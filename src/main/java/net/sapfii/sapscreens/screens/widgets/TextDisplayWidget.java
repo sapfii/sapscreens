@@ -8,6 +8,7 @@ import net.sapfii.sapscreens.UtilSS;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TextDisplayWidget extends Widget<TextDisplayWidget> {
     public enum TextAlignment {
@@ -24,7 +25,7 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
     }
 
     @Override
-    public void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer) {
+    public void render(DrawContext context, float mouseX, float mouseY, float delta, Widget<?> renderer) {
         position.updateAnchors(renderer);
         TextRenderer textRenderer = SapScreens.MC.textRenderer;
         int yOffset = 0;
@@ -43,17 +44,24 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
         return this;
     }
 
-    protected TextDisplayWidget addLine(Text line) {
+    public int maxWidth() {
+        TextRenderer textRenderer = SapScreens.MC.textRenderer;
+        AtomicInteger maxSize = (new AtomicInteger());
+        text.forEach(text -> maxSize.set(maxSize.get() + textRenderer.fontHeight + 2));
+        return maxSize.get();
+    }
+
+    public TextDisplayWidget addLine(Text line) {
         this.text.addAll(UtilSS.splitTextNewline(line));
         return getThis();
     }
 
-    protected TextDisplayWidget removeLine(int ind) {
+    public TextDisplayWidget removeLine(int ind) {
         this.text.remove(ind);
         return getThis();
     }
 
-    protected TextDisplayWidget setLines(List<Text> lines) {
+    public TextDisplayWidget setLines(List<Text> lines) {
         this.text = lines;
         return getThis();
     }

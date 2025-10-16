@@ -2,10 +2,10 @@ package net.sapfii.sapscreens.screens.widgets;
 
 import net.minecraft.client.gui.DrawContext;
 
-public abstract class Widget<T extends Widget<T>> {
+public abstract class Widget<T extends Widget<?>> {
     protected final WidgetPos position = new WidgetPos();
 
-    public abstract void render(DrawContext context, float mouseX, float mouseY, float delta, WidgetContainer renderer);
+    public abstract void render(DrawContext context, float mouseX, float mouseY, float delta, Widget<?> renderer);
 
     public int x() { return Math.round(position.x + position.anchorX); }
     public int y() { return Math.round(position.y + position.anchorY); }

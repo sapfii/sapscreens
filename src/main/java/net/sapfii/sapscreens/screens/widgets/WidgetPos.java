@@ -15,9 +15,10 @@ public class WidgetPos {
     protected float x, y;
     protected float anchorX, anchorY;
     protected float width, height;
+    protected boolean useRendererWidth, useRendererHeight;
     protected Alignment alignment = Alignment.TOPLEFT;
 
-    protected void updateAnchors(WidgetContainer renderer) {
+    protected void updateAnchors(Widget<?> renderer) {
         anchorX = 0;
         anchorY = 0;
         Screen screen = SapScreens.MC.currentScreen;
