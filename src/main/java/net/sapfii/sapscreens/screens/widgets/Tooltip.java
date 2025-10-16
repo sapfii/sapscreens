@@ -36,6 +36,6 @@ public class Tooltip extends Widget<Tooltip> {
         texts = UtilSS.splitTextNewline(tooltipText);
         AtomicInteger maxSize = new AtomicInteger(0);
         texts.forEach(text -> maxSize.set(Math.max(maxSize.get(), textRenderer.getWidth(text))));
-        withDimensions(6 + maxSize.get(), 6 + textRenderer.fontHeight * texts.size());
+        withDimensions(6 + maxSize.get(), 4 + (textRenderer.fontHeight + 2) * texts.size());
     }
 }

@@ -17,12 +17,11 @@ public class DebugScreen extends WidgetContainerScreen {
                                 .append(Text.literal("bl_\ntag").withColor(0xFF7FFF))
                                 .append(Text.literal(")"))
                 );
-        System.out.println(test);
         container.addWidgets(
                 new WidgetList(
                         new TextDisplayWidget(test)
                                 .withTextAlignment(TextDisplayWidget.TextAlignment.LEFT),
-                        new ButtonWidget().withTooltip(Text.literal("TOOLTIP!\ntest")),
+                        new ButtonWidget().withTooltip(Text.literal("TOOLTIP!\ntest\ntons of lines\nto view and break\nqwq")),
                         new WidgetFolder(
                                 new ButtonWidget().withTooltip(Text.literal("this is inside\nanother box!")),
                                 new ButtonWidget(),

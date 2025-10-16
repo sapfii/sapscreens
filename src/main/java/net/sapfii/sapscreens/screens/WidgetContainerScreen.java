@@ -9,7 +9,7 @@ import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
 import net.sapfii.sapscreens.screens.widgets.interfaces.ScrollableWidget;
 
 public class WidgetContainerScreen extends Screen {
-    protected WidgetContainer container = new WidgetContainer();
+    public WidgetContainer container = new WidgetContainer();
 
     protected boolean showTooltip = false;
     protected Tooltip tooltip = new Tooltip();
