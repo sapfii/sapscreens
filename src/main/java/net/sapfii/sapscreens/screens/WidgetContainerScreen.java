@@ -5,8 +5,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.sapfii.sapscreens.screens.widgets.Tooltip;
 import net.sapfii.sapscreens.screens.widgets.WidgetContainer;
-import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
-import net.sapfii.sapscreens.screens.widgets.interfaces.ScrollableWidget;
 
 public class WidgetContainerScreen extends Screen {
     public WidgetContainer container = new WidgetContainer();
@@ -22,6 +20,8 @@ public class WidgetContainerScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
         showTooltip = false;
+        container.resetChildrenHovered();
+        container.updateHovered(mouseX, mouseY);
         container.render(context, mouseX, mouseY, deltaTicks, null);
         if (showTooltip) {
             context.getMatrices().pushMatrix();
@@ -33,19 +33,19 @@ public class WidgetContainerScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        container.getWidgets().forEach(widget -> { if (widget instanceof ScrollableWidget w) w.onScroll(verticalAmount); });
+        container.onScroll(verticalAmount);
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        container.getWidgets().forEach(widget -> { if (widget instanceof ClickableWidget w) w.onClick((float) mouseX, (float) mouseY); });
+        container.onClick((float) mouseX, (float) mouseY);
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        container.getWidgets().forEach(widget -> { if (widget instanceof ClickableWidget w) w.onRelease((float) mouseX, (float) mouseY); });
+        container.onRelease((float) mouseX, (float) mouseY);
         return super.mouseReleased(mouseX, mouseY, button);
     }
 

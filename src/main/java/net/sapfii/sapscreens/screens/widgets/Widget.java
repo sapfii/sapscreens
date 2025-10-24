@@ -11,6 +11,7 @@ public abstract class Widget<T extends Widget<?>> {
     public int y() { return Math.round(position.y + position.anchorY); }
     public int width() { return Math.round(position.width); }
     public int height() { return Math.round(position.height); }
+    public boolean isHovered() { return position.hovered; }
 
     protected abstract T getThis();
 
@@ -27,5 +28,11 @@ public abstract class Widget<T extends Widget<?>> {
     public T withAlignment(WidgetPos.Alignment alignment) {
         position.alignment = alignment;
         return getThis();
+    }
+
+    public void updateHovered(float mouseX, float mouseY) {
+        boolean inBoundsX = mouseX >= x() && mouseX < x() + width();
+        boolean inBoundsY = mouseY >= y() && mouseY < y() + height();
+        position.hovered = inBoundsX && inBoundsY;
     }
 }

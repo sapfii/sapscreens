@@ -19,19 +19,29 @@ public class WidgetFolder extends WidgetList {
             }
     ).withText(Text.literal("↓"));
     protected float visHeight = 22;
-    protected TextDisplayWidget title = new TextDisplayWidget(Text.empty()).withTextAlignment(TextDisplayWidget.TextAlignment.CENTER);
+    protected TextDisplayWidget title = TextDisplayWidget.create(Text.empty()).withTextAlignment(TextDisplayWidget.TextAlignment.CENTER);
 
-    public WidgetFolder(Widget<?>... widgets) {
-        super(widgets);
+    public static WidgetFolder create(Widget<?>... widgets) {
+        WidgetFolder widget = new WidgetFolder();
+        widget.widgets.addAll(List.of(widgets));
+        widget.position.x = 0;
+        widget.position.y = 0;
+        widget.position.width = 100;
+        widget.position.height = 100;
+        widget.horizontalPadding = 10;
+        widget.verticalPadding = 10;
+        widget.itemPadding = 5;
+        widget.visScrollAmount = 0;
+        widget.allowScrolling = true;
+        return widget;
     }
 
     @Override
     public void render(DrawContext context, float mouseX, float mouseY, float delta, Widget<?> renderer) {
         position.updateAnchors(renderer);
-        hovered = isHovered(mouseX, mouseY, renderer);
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(x(), y());
-        AtomicInteger maxHeight = new AtomicInteger(verticalPadding * 3 + 16);
+        AtomicInteger maxHeight = new AtomicInteger(verticalPadding * 2 + 32);
         widgets.forEach(widget -> maxHeight.set(maxHeight.get() + widget.height()));
         position.height = maxHeight.get();
         if (!open) position.height = 22;
@@ -62,20 +72,20 @@ public class WidgetFolder extends WidgetList {
 
     @Override
     public void onClick(float mouseX, float mouseY) {
-        extendoPetroleum.onClick(mouseX, mouseY);
         super.onClick(mouseX, mouseY);
+        extendoPetroleum.onClick(mouseX, mouseY);
     }
 
     @Override
     public void onScroll(double amt) {
         allowScrolling = true;
-        if (!hovered) return;
+        if (!position.hovered) return;
         widgets.forEach(widget -> {
             if (widget instanceof ScrollableWidget w) {
                 w.onScroll(amt);
-                allowScrolling = !w.hovered();
+                allowScrolling = !widget.isHovered();
                 if (widget instanceof WidgetList l) {
-                    allowScrolling = (l.hovered() && (!l.canScroll() && l.allowScrolling)) || !l.hovered();
+                    allowScrolling = (l.isHovered() && (!l.canScroll() && l.allowScrolling)) || !l.isHovered();
                 }
             }
         });
@@ -112,5 +122,17 @@ public class WidgetFolder extends WidgetList {
     public WidgetFolder withTitle(Text title) {
         this.title.setLines(List.of(title));
         return getThis();
+    }
+
+    @Override
+    public void resetChildrenHovered() {
+        super.resetChildrenHovered();
+        extendoPetroleum.position.hovered = false;
+    }
+
+    @Override
+    public void updateHovered(float mouseX, float mouseY) {
+        super.updateHovered(mouseX, mouseY);
+        if (position.hovered) extendoPetroleum.updateHovered(mouseX - x(), mouseY - y());
     }
 }

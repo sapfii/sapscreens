@@ -7,32 +7,41 @@ import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
 import net.sapfii.sapscreens.screens.widgets.interfaces.ScrollableWidget;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WidgetList extends WidgetContainer implements ScrollableWidget, ClickableWidget {
     int horizontalPadding, verticalPadding, itemPadding;
     float scrollAmount, visScrollAmount, maxScrollAmount, mouseAnchor, scrollAnchor;
-    boolean hovered, barHovered, holdingBar, allowScrolling;
+    boolean barHovered, holdingBar, allowScrolling;
+    float maxHeight;
 
-    public WidgetList(Widget<?>... widgets) {
-        this.widgets.addAll(List.of(widgets));
-        position.x = 0;
-        position.y = 0;
-        position.width = 100;
-        position.height = 100;
-        this.horizontalPadding = 10;
-        this.verticalPadding = 10;
-        this.itemPadding = 5;
-        this.visScrollAmount = 0;
-        this.allowScrolling = true;
+    public static WidgetList create(Widget<?>... widgets) {
+        WidgetList widget = new WidgetList();
+        widget.widgets.addAll(List.of(widgets));
+        widget.position.x = 0;
+        widget.position.y = 0;
+        widget.position.width = 100;
+        widget.position.height = 100;
+        widget.maxHeight = 100;
+        widget.horizontalPadding = 10;
+        widget.verticalPadding = 10;
+        widget.itemPadding = 5;
+        widget.visScrollAmount = 0;
+        widget.allowScrolling = true;
+        return widget;
     }
 
     @Override
     public void render(DrawContext context, float mouseX, float mouseY, float delta, Widget<?> renderer) {
         position.updateAnchors(renderer);
-        hovered = isHovered(mouseX, mouseY, renderer);
         barHovered = false;
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(x(), y());
+        AtomicInteger maxHeight = new AtomicInteger(verticalPadding * 2);
+        widgets.forEach(widget -> maxHeight.set(maxHeight.get() + widget.height() + itemPadding));
+        int newMaxHeight = maxHeight.get() - itemPadding;
+        if (newMaxHeight < this.maxHeight) position.height = Math.clamp(newMaxHeight, this.maxHeight / 3, 99999);
+        else position.height = this.maxHeight;
         context.enableScissor(0, 0, width(), height());
         context.fill(0, 0, width(), height(), 0x44000000);
         int currentOffset = verticalPadding - (int) visScrollAmount;
@@ -65,16 +74,6 @@ public class WidgetList extends WidgetContainer implements ScrollableWidget, Cli
             }
         }
         context.getMatrices().popMatrix();
-    }
-
-    protected boolean isHovered(float mouseX, float mouseY, Widget<?> renderer) {
-        int parentWidth = renderer == null ? SapScreens.MC.getWindow().getScaledWidth() : renderer.width();
-        int parentHeight = renderer == null ? SapScreens.MC.getWindow().getScaledHeight() : renderer.height();
-        boolean inBoundsX = mouseX >= x() && mouseX < x() + width();
-        boolean inBoundsY = mouseY >= y() && mouseY < y() + height();
-        boolean inRenderBoundsX = mouseX >= 0 && mouseX < parentWidth;
-        boolean inRenderBoundsY = mouseY >= 0 && mouseY < parentHeight;
-        return inBoundsX && inBoundsY && inRenderBoundsX && inRenderBoundsY;
     }
 
     protected boolean isBarHovered(float mouseX, float mouseY, float scrollAmount, float barHeight, Widget<?> renderer) {
@@ -110,6 +109,7 @@ public class WidgetList extends WidgetContainer implements ScrollableWidget, Cli
     @Override
     public WidgetList withDimensions(int width, int height) {
         super.withDimensions(width, height);
+        this.maxHeight = height;
         return getThis();
     }
 
@@ -126,6 +126,7 @@ public class WidgetList extends WidgetContainer implements ScrollableWidget, Cli
             mouseAnchor = mouseY;
             scrollAnchor = visScrollAmount;
         }
+        if (!position.hovered) return;
         widgets.forEach(widget -> { if (widget instanceof ClickableWidget w) w.onClick(mouseX - x(), mouseY - y()); });
     }
 
@@ -138,22 +139,17 @@ public class WidgetList extends WidgetContainer implements ScrollableWidget, Cli
     @Override
     public void onScroll(double amt) {
         allowScrolling = true;
-        if (!hovered || barHovered) return;
+        if (!position.hovered || barHovered) return;
         widgets.forEach(widget -> {
             if (widget instanceof ScrollableWidget w) {
                 w.onScroll(amt);
-                allowScrolling = !w.hovered();
+                allowScrolling = !widget.isHovered();
                 if (widget instanceof WidgetList l) {
-                    allowScrolling = (l.hovered() && (!l.canScroll() && l.allowScrolling)) || !l.hovered();
+                    allowScrolling = (l.isHovered() && (!l.canScroll() && l.allowScrolling)) || !l.isHovered();
                 }
             }
         });
         if (allowScrolling) setScrollAmount((float) (scrollAmount - amt * 15));
-    }
-
-    @Override
-    public boolean hovered() {
-        return hovered;
     }
 
     public boolean canScroll() {

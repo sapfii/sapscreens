@@ -19,9 +19,11 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
     protected TextAlignment textAlignment;
     protected int textPadding = 2;
 
-    public TextDisplayWidget(Text text) {
-        addLine(text);
-        this.textAlignment = TextAlignment.LEFT;
+    public static TextDisplayWidget create(Text text) {
+        TextDisplayWidget widget = new TextDisplayWidget();
+        widget.addLine(text);
+        widget.textAlignment = TextAlignment.LEFT;
+        return widget;
     }
 
     @Override

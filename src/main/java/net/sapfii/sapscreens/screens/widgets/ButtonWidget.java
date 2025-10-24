@@ -11,8 +11,7 @@ import net.sapfii.sapscreens.screens.widgets.interfaces.ClickableWidget;
 public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidget {
     protected ClickProcessor processor = (button) -> {};
     protected Text tooltipText = Text.literal("");
-    protected TextDisplayWidget text = new TextDisplayWidget(Text.literal(""));
-    protected boolean hovered = false;
+    protected TextDisplayWidget text = TextDisplayWidget.create(Text.literal(""));
 
     public ButtonWidget() {
         position.x = 0;
@@ -23,15 +22,25 @@ public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidge
         text.withTextAlignment(TextDisplayWidget.TextAlignment.CENTER);
     }
 
+    public static ButtonWidget create() {
+        ButtonWidget widget = new ButtonWidget();
+        widget.position.x = 0;
+        widget.position.y = 0;
+        widget.position.width = 16;
+        widget.position.height = 16;
+        widget.text.withDimensions(widget.width(), widget.height());
+        widget.text.withTextAlignment(TextDisplayWidget.TextAlignment.CENTER);
+        return widget;
+    }
+
     @Override
     public void render(DrawContext context, float mouseX, float mouseY, float delta, Widget<?> renderer) {
         TextRenderer textRenderer = SapScreens.MC.textRenderer;
         position.updateAnchors(renderer);
-        hovered = isHovered(mouseX, mouseY, renderer);
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(x(), y());
         context.enableScissor(0, 0, width(), height());
-        if (hovered) {
+        if (position.hovered) {
             if (SapScreens.MC.currentScreen instanceof WidgetContainerScreen screen && !tooltipText.getString().isEmpty()) {
                 screen.showToolTip(true);
                 screen.setTooltipText(tooltipText);
@@ -46,16 +55,6 @@ public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidge
         context.getMatrices().popMatrix();
         context.disableScissor();
         context.getMatrices().popMatrix();
-    }
-
-    private boolean isHovered(float mouseX, float mouseY, Widget<?> renderer) {
-        int parentWidth = renderer == null ? SapScreens.MC.getWindow().getScaledWidth() : renderer.width();
-        int parentHeight = renderer == null ? SapScreens.MC.getWindow().getScaledHeight() : renderer.height();
-        boolean inBoundsX = mouseX >= x() && mouseX < x() + width();
-        boolean inBoundsY = mouseY >= y() && mouseY < y() + height();
-        boolean inRenderBoundsX = mouseX >= 0 && mouseX < parentWidth;
-        boolean inRenderBoundsY = mouseY >= 0 && mouseY < parentHeight;
-        return inBoundsX && inBoundsY && inRenderBoundsX && inRenderBoundsY;
     }
 
     @Override
@@ -84,11 +83,21 @@ public class ButtonWidget extends Widget<ButtonWidget> implements ClickableWidge
 
     @Override
     public void onClick(float mouseX, float mouseY) {
-        if (hovered) processor.onClick(getThis());
+        if (position.hovered) processor.onClick(getThis());
     }
 
     @Override
     public void onRelease(float mouseX, float mouseY) {
 
+    }
+
+    @Override
+    public boolean isHovered() {
+        return position.hovered;
+    }
+
+    @Override
+    public void updateHovered(float mouseX, float mouseY) {
+        super.updateHovered(mouseX, mouseY);
     }
 }
