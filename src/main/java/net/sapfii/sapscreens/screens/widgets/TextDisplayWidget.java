@@ -2,6 +2,7 @@ package net.sapfii.sapscreens.screens.widgets;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.sapfii.sapscreens.SapScreens;
 import net.sapfii.sapscreens.UtilSS;
@@ -15,11 +16,15 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
         LEFT, CENTER, RIGHT
     }
 
-    protected List<Text> text = new ArrayList<>();
+    protected List<OrderedText> text = new ArrayList<>();
     protected TextAlignment textAlignment;
     protected int textPadding = 2;
 
     public static TextDisplayWidget create(Text text) {
+        return TextDisplayWidget.create(text.asOrderedText());
+    }
+
+    public static TextDisplayWidget create(OrderedText text) {
         TextDisplayWidget widget = new TextDisplayWidget();
         widget.addLine(text);
         widget.textAlignment = TextAlignment.LEFT;
@@ -31,7 +36,7 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
         position.updateAnchors(renderer);
         TextRenderer textRenderer = SapScreens.MC.textRenderer;
         int yOffset = 0;
-        for (Text line : text) {
+        for (OrderedText line : text) {
             int xOffset = 0;
             if (textAlignment == TextAlignment.CENTER) xOffset = width() / 2 - textRenderer.getWidth(line) / 2;
             if (textAlignment == TextAlignment.RIGHT) xOffset = width() - textRenderer.getWidth(line);
@@ -54,7 +59,14 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
     }
 
     public TextDisplayWidget addLine(Text line) {
-        this.text.addAll(UtilSS.splitTextNewline(line));
+        UtilSS.splitTextNewline(line).forEach(newLine -> {
+            this.text.add(newLine.asOrderedText());
+        });
+        return getThis();
+    }
+
+    public TextDisplayWidget addLine(OrderedText line) {
+        this.text.add(line);
         return getThis();
     }
 
@@ -64,7 +76,12 @@ public class TextDisplayWidget extends Widget<TextDisplayWidget> {
     }
 
     public TextDisplayWidget setLines(List<Text> lines) {
-        this.text = lines;
+        this.text = new ArrayList<>();
+        lines.forEach(line -> {
+            UtilSS.splitTextNewline(line).forEach(newLine -> {
+                this.text.add(newLine.asOrderedText());
+            });
+        });
         return getThis();
     }
 
